@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Call;
 use App\Models\Client;
+use App\Models\User;
 use Illuminate\Http\Request;
-
+use Faker\Factory;
+use Illuminate\Support\Facades\Redirect;
 
 class CallController extends Controller
 {
@@ -19,7 +21,7 @@ class CallController extends Controller
 
         $calls = Call::getCalls();
 
-        return view('/index',compact(['calls'=>'calls']));
+        return view('/index',compact('calls'));
     }
 
     /**
@@ -37,7 +39,7 @@ class CallController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -51,14 +53,24 @@ class CallController extends Controller
             'name' => 'required',
             'client_type' => 'required'
 
-
-
         ]);
+
+//        $new_user = factory(User::class)->create();
+       $faker = Factory::create();
+
+        $new_user = new User([
+            'name' => $faker->name
+        ]);
+
+        $new_user->save();
+
         $clients = new Client([
             'name' => $request->input('name'),
-            'client_type' => $request->input('client_type')
+            'client_type' => $request->input('client_type'),
+            'user_id' => $new_user->id
 
         ]);
+
         $clients->save();
 
 
@@ -70,7 +82,7 @@ class CallController extends Controller
            'client_id' =>$clients->id
        ]);
 
-      $call->save();
+       $call->save();
 
 
 //        redirect()->route('index')
@@ -78,32 +90,31 @@ class CallController extends Controller
 
 //        return view('/create_call');
 
-//        return Redirect::to('calls');
+        return Redirect::to('show/'. $call->id);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $call
      * @return \Illuminate\Http\Response
      */
-    public function show(Call $id)
+    public function show(Call $call)
     {
         //
-
-
-        return view('/show');
+        return view('show', compact('call'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $call
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Call $call)
     {
         //
+        return view('edit', compact('call'));
     }
 
     /**
@@ -121,11 +132,15 @@ class CallController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  int  $call
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(Call $call)
     {
         //
+        $call = Call::find('id');
+        $call->delete();
+
+        return Redirect::to('/index')->with('success','Call deleted successfully');
     }
 }

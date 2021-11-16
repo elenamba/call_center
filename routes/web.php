@@ -21,8 +21,9 @@ Route::get('/', function () {
 
 Route::get('/index',[CallController::class,'index'])->name('calls');
 Route::get('/create_call',[CallController::class,'create'])->name('create_calls');
-Route::post('/create_call',[CallController::class,'store'])->name('create_calls');
-Route::get('/show/',[CallController::class,'show'])->name('show_calls');
+Route::post('/create_call',[CallController::class,'store']);
+Route::get('/show/{call}',[CallController::class,'show'])->name('show_calls');
+Route::post('/destroy{call}',[CallController::class,'destroy'])->name('delete');
 
 
 Route::get('/users',[UserController::class,'index'])->name('users');

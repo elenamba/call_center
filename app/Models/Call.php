@@ -20,10 +20,10 @@ class Call extends Model
         return $this->belongsTo(Client::class,'client_id','id');
     }
 
-    public static function getCalls(){
+    public function scopeGetCalls(){
 
-        $calls = Call::query()->where('duration','>=','10')->orderBy('date')->get();
+        return $this->where('duration','>=','10')->orderBy('date')->paginate(30);
 
-        return $calls;
+
     }
 }
